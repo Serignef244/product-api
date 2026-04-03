@@ -90,7 +90,7 @@ spec:
     - http:
         paths:
           - path: /l3gl(/|$)(.*)
-            pathType: Prefix
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: product-api
