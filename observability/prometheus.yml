@@ -3,7 +3,7 @@ global:
 
 scrape_configs:
   - job_name: 'product-api'
-    metrics_path: '/actuator/prometheus'
+    metrics_path: '/l3gl/actuator/prometheus'
     static_configs:
       # L'IP doit correspondre à l'IP de la VM1 sur laquelle tourne le Product API
-      - targets: ['192.168.239.10:8086']
+      - targets: ['192.168.239.10:80']
