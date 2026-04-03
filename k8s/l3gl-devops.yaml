@@ -56,7 +56,7 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: 8086
-            initialDelaySeconds: 30
+            initialDelaySeconds: 90
             periodSeconds: 10
           readinessProbe:
             httpGet:
