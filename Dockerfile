@@ -1,5 +1,13 @@
-FROM eclipse-temurin:17-jre-alpine
+# Stage 1 : Build avec Maven
+FROM maven:3.8-openjdk-17 AS build
 WORKDIR /app
-COPY target/product-api-0.0.1-SNAPSHOT.jar app.jar
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Stage 2 : Exécution avec OpenJDK 17
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8086
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+CMD ["java", "-jar", "app.jar"]

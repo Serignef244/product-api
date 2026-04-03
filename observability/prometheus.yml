@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 10s
+
+scrape_configs:
+  - job_name: 'product-api'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      # L'IP doit correspondre à l'IP de la VM1 sur laquelle tourne le Product API
+      - targets: ['<IP-VM1>:8086']

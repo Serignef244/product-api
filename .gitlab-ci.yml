@@ -1,0 +1,35 @@
+stages:
+  - test
+  - build
+  - docker
+
+test:
+  image: maven:3.8-openjdk-17
+  stage: test
+  script:
+    - mvn clean test
+  only:
+    - develop
+
+build:
+  image: maven:3.8-openjdk-17
+  stage: build
+  script:
+    - mvn clean package -DskipTests
+  artifacts:
+    paths:
+      - target/*.jar
+  only:
+    - develop
+
+docker:
+  image: docker:latest
+  stage: docker
+  services:
+    - docker:dind
+  script:
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - docker build -t $DOCKER_IMAGE:latest .
+    - docker push $DOCKER_IMAGE:latest
+  only:
+    - develop
