@@ -9,7 +9,7 @@ data:
   SPRING_DATASOURCE_USERNAME: "productuser"
   MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,prometheus,metrics"
   # Remplacez <IP-VM2> par la véritable IP de la VM Monitoring
-  LOKI_URL: "http://127.0.0.1:3100/loki/api/v1/push"
+  LOKI_URL: "http://192.168.239.20:3100/loki/api/v1/push"
 ---
 apiVersion: v1
 kind: Secret
