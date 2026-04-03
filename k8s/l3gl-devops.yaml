@@ -38,6 +38,7 @@ spec:
       containers:
         - name: product-api
           image: serignef244/product-api:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8086
           envFrom:
@@ -56,14 +57,14 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: 8086
-            initialDelaySeconds: 90
+            initialDelaySeconds: 240
             periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: 8086
-            initialDelaySeconds: 15
-            periodSeconds: 5
+            initialDelaySeconds: 60
+            periodSeconds: 10
 ---
 apiVersion: v1
 kind: Service
