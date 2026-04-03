@@ -3,7 +3,7 @@
   hosts: all
   become: true
   vars:
-    docker_image: dockerhub_votre_username/product-api:latest
+    docker_image: serignef244/product-api:latest
     container_name: product-api
     app_port: 8086
 
