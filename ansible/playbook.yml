@@ -3,9 +3,12 @@
   hosts: all
   become: true
   vars:
-    docker_image: serignef244/product-api:latest
+    docker_image: serignef244/product-api:v2
     container_name: product-api
     app_port: 8086
+    mysql_db: productdb
+    mysql_user: productapp
+    mysql_password: productapp123
 
   tasks:
     - name: Update apt cache
@@ -18,6 +21,7 @@
         name:
           - docker.io
           - mysql-server
+          - python3-pymysql
         state: present
 
     - name: Ensure Docker is started and enabled
@@ -32,6 +36,35 @@
         state: started
         enabled: true
 
+    - name: Create application database
+      community.mysql.mysql_db:
+        name: "{{ mysql_db }}"
+        state: present
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    - name: Create application MySQL user
+      community.mysql.mysql_user:
+        name: "{{ mysql_user }}"
+        password: "{{ mysql_password }}"
+        host: "%"
+        priv: "{{ mysql_db }}.*:ALL"
+        state: present
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    - name: Ensure products table exists
+      community.mysql.mysql_query:
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        login_db: "{{ mysql_db }}"
+        query: |
+          CREATE TABLE IF NOT EXISTS products (
+            id BIGINT NOT NULL AUTO_INCREMENT,
+            name VARCHAR(255) NOT NULL,
+            `description` VARCHAR(1024) NOT NULL,
+            price DECIMAL(10,2) NOT NULL,
+            quantity INT NOT NULL,
+            PRIMARY KEY (id)
+          );
+
     - name: Pull latest image
       community.docker.docker_image:
         name: "{{ docker_image }}"
@@ -40,6 +73,7 @@
     - name: Stop existing container
       community.docker.docker_container:
         name: "{{ container_name }}"
+        image: "{{ docker_image }}"
         state: stopped
       ignore_errors: true
 
@@ -55,8 +89,11 @@
         image: "{{ docker_image }}"
         state: started
         restart_policy: always
-        published_ports:
-          - "{{ app_port }}:{{ app_port }}"
+        network_mode: host
+        env:
+          SPRING_DATASOURCE_URL: "jdbc:mysql://localhost:3306/{{ mysql_db }}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+          SPRING_DATASOURCE_USERNAME: "{{ mysql_user }}"
+          SPRING_DATASOURCE_PASSWORD: "{{ mysql_password }}"
 
     - name: Verify API endpoint
       ansible.builtin.uri:
